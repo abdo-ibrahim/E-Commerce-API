@@ -1,0 +1,82 @@
+paths:
+  /api/v1/coupons:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Get all coupons (Admin)
+      responses:
+        200: { description: List of coupons }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Create coupon (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, discount]
+              properties:
+                code: { type: string }
+                discount: { type: number }
+                expiresAt: { type: string, format: date-time }
+      responses:
+        201: { description: Created }
+  /api/v1/coupons/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Get coupon by id (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Coupon }
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Update coupon (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Delete coupon (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        204: { description: Deleted }
+  /api/v1/coupons/apply/{code}:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Get coupon by code (Admin)
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Coupon }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Coupons]
+      summary: Apply coupon (User)
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Applied }

@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: E-commerce API
+  version: 1.0.0
+  description: REST API documentation for the E-commerce platform
+servers:
+  - url: http://localhost:5000
+    description: Local server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        active:
+          type: boolean
+    Product:
+      type: object
+      properties:
+        _id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        price: { type: number }
+        images:
+          type: array
+          items:
+            type: string
+    Category:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+    Review:
+      type: object
+      properties:
+        _id: { type: string }
+        rating: { type: number }
+        comment: { type: string }
+        product: { type: string }
+        user: { type: string }
+    CartItem:
+      type: object
+      properties:
+        product: { type: string }
+        quantity: { type: integer }
+        price: { type: number }
+    Cart:
+      type: object
+      properties:
+        _id: { type: string }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        totalPrice: { type: number }
+    Order:
+      type: object
+      properties:
+        _id: { type: string }
+        user: { type: string }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        totalPrice: { type: number }
+        status: { type: string }
+security:
+  - bearerAuth: []

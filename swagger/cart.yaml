@@ -1,0 +1,63 @@
+paths:
+  /api/v1/cart:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Cart]
+      summary: Get current user's cart
+      responses:
+        200: { description: Cart }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Cart]
+      summary: Add item to cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product, quantity]
+              properties:
+                product: { type: string }
+                quantity: { type: integer }
+      responses:
+        200: { description: Updated cart }
+  /api/v1/cart/{productId}:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Cart]
+      summary: Update item quantity
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity: { type: integer }
+      responses:
+        200: { description: Updated cart }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Cart]
+      summary: Remove item from cart
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated cart }
+  /api/v1/cart/clear:
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Cart]
+      summary: Clear cart
+      responses:
+        204: { description: Cleared }

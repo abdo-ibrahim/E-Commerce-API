@@ -1,0 +1,36 @@
+paths:
+  /api/v1/shippings:
+    get:
+      tags: [Shipping]
+      summary: Get all shipping options
+      responses:
+        200: { description: List of shipping options }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Shipping]
+      summary: Create shipping option (Admin)
+      responses:
+        201: { description: Created }
+  /api/v1/shippings/{id}:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Shipping]
+      summary: Update shipping option (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Shipping]
+      summary: Delete shipping option (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        204: { description: Deleted }

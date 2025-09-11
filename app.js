@@ -9,8 +9,10 @@ const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const setupSwagger = require("./config/swagger");
 
 const app = express();
+setupSwagger(app);
 app.use(cookieParser(process.env.JWT_SECRET_KEY));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

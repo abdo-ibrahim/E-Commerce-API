@@ -1,0 +1,68 @@
+paths:
+  /api/v1/categories:
+    get:
+      tags: [Categories]
+      summary: Get all categories
+      responses:
+        200: { description: List of categories }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Categories]
+      summary: Create category (Admin)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                image:
+                  type: string
+                  format: binary
+      responses:
+        201: { description: Created }
+  /api/v1/categories/{id}:
+    get:
+      tags: [Categories]
+      summary: Get category by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Category }
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Categories]
+      summary: Update category (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200: { description: Updated }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Categories]
+      summary: Delete category (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        204: { description: Deleted }

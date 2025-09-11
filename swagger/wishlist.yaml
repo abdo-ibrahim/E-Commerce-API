@@ -1,0 +1,35 @@
+paths:
+  /api/v1/wishlist:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Wishlist]
+      summary: Get user wishlist
+      responses:
+        200: { description: Wishlist }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Wishlist]
+      summary: Add product to wishlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product]
+              properties:
+                product: { type: string }
+      responses:
+        200: { description: Updated wishlist }
+  /api/v1/wishlist/{productId}:
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Wishlist]
+      summary: Remove product from wishlist
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated wishlist }

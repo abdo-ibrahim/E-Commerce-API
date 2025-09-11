@@ -1,0 +1,101 @@
+paths:
+  /api/v1/auth/signup:
+    post:
+      tags: [Auth]
+      summary: User signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        201:
+          description: Created user
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Logged in
+  /api/v1/auth/logout:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Auth]
+      summary: Logout current user
+      responses:
+        200:
+          description: Logged out
+  /api/v1/auth/check-auth:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Auth]
+      summary: Check session/auth status
+      responses:
+        200:
+          description: Authenticated
+  /api/v1/auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Verify email using token or code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: { type: string }
+      responses:
+        200: { description: Email verified }
+  /api/v1/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Initiate password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string }
+      responses:
+        200: { description: Reset email sent }
+  /api/v1/auth/reset-password/{token}:
+    put:
+      tags: [Auth]
+      summary: Reset password with token
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string }
+      responses:
+        200: { description: Password reset }

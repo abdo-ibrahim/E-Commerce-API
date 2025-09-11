@@ -1,0 +1,66 @@
+paths:
+  /api/v1/orders:
+    get:
+      tags: [Orders]
+      summary: Get all orders
+      responses:
+        200: { description: List of orders }
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Orders]
+      summary: Create order (User)
+      responses:
+        201: { description: Created }
+  /api/v1/orders/my-orders:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Orders]
+      summary: Get current user's orders
+      responses:
+        200: { description: List of user orders }
+  /api/v1/orders/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Orders]
+      summary: Get order by id (User/Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Order }
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Orders]
+      summary: Update order status (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Orders]
+      summary: Delete order (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        204: { description: Deleted }
+  /api/v1/orders/{id}/pay:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Orders]
+      summary: Mark order as paid (User)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Paid }

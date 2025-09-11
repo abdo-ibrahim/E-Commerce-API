@@ -1,0 +1,142 @@
+paths:
+  /api/v1/users:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Get all users (Admin)
+      responses:
+        200:
+          description: List of users
+  /api/v1/users/me:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        200:
+          description: Current user
+  /api/v1/users/update-me:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Update current user profile
+      responses:
+        200:
+          description: Updated user
+  /api/v1/users/update-password:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Update password
+      responses:
+        200:
+          description: Password updated
+  /api/v1/users/delete-me:
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Deactivate current user
+      responses:
+        204:
+          description: Deleted
+  /api/v1/users/upload-profile-picture:
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Upload profile picture
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200: { description: Uploaded }
+  /api/v1/users/addresses:
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [User Addresses]
+      summary: Add new address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alias: { type: string }
+                details: { type: string }
+                phone: { type: string }
+                city: { type: string }
+      responses:
+        201: { description: Created address }
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [User Addresses]
+      summary: Get all user addresses
+      responses:
+        200: { description: List of addresses }
+  /api/v1/users/addresses/{addressId}:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [User Addresses]
+      summary: Update address
+      parameters:
+        - in: path
+          name: addressId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated address }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [User Addresses]
+      summary: Remove address
+      parameters:
+        - in: path
+          name: addressId
+          required: true
+          schema: { type: string }
+      responses:
+        204: { description: Deleted }
+  /api/v1/users/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Get user by id (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: User
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Update user (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Updated user
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Users]
+      summary: Delete user (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        204:
+          description: Deleted

@@ -1,0 +1,53 @@
+paths:
+  /api/v1/reviews/{productId}:
+    get:
+      tags: [Reviews]
+      summary: Get reviews for a product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: List of reviews }
+  /api/v1/reviews:
+    post:
+      security: [{ bearerAuth: [] }]
+      tags: [Reviews]
+      summary: Create a review (User)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product, rating]
+              properties:
+                product: { type: string }
+                rating: { type: number }
+                comment: { type: string }
+      responses:
+        201: { description: Created review }
+  /api/v1/reviews/{id}:
+    put:
+      security: [{ bearerAuth: [] }]
+      tags: [Reviews]
+      summary: Update review (Owner)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Updated review }
+    delete:
+      security: [{ bearerAuth: [] }]
+      tags: [Reviews]
+      summary: Delete review (Owner/Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        204: { description: Deleted }
