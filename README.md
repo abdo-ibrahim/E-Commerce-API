@@ -22,7 +22,7 @@ An **E-commerce RESTful API** built with **Node.js, Express, and MongoDB**, prov
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/abdo-ibrahim/E-Commerce-AP.git`
+1. Clone the repository: `git clone https://github.com/abdo-ibrahim/E-Commerce-API.git`
 2. Install dependencies: `npm install`
 3. Open the `.env` file and set the environment variables specified within.
 4. Start the server: `npm start`
