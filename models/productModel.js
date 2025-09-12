@@ -43,11 +43,11 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
-    ratings: {
+    averageRating: {
       type: Number,
       default: 0,
     },
-    numOfReviews: {
+    numReviews: {
       type: Number,
       default: 0,
     },

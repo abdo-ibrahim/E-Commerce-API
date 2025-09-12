@@ -2,6 +2,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/appErrors");
 const Review = require("../models/reviewModel");
 const Product = require("../models/productModel");
+const Order = require("../models/orderModel");
 
 /**
  * @desc   Create a new review for a product
@@ -15,10 +16,19 @@ exports.createReview = asyncHandler(async (req, res, next) => {
   if (!productId || !comment || !rating) {
     return next(new AppError("All fields are required", 400));
   }
+
   const product = await Product.findById(productId);
   if (!product) {
     return next(new AppError("Product not found", 404));
   }
+
+  // check if user purchased the product before allowing review
+  const hasBought = await Order.findOne({ user: userId, "cartItems.product": productId, isDelivered: true });
+
+  if (!hasBought) {
+    return next(new AppError("You can only review products you have purchased", 403));
+  }
+
   const existingReview = await Review.findOne({ product: productId, user: userId });
   if (existingReview) {
     return next(new AppError("You have already reviewed this product", 400));
@@ -55,6 +65,8 @@ exports.getAllReviews = asyncHandler(async (req, res, next) => {
     data: {
       reviews,
     },
+    averageRating: product.averageRating || 0,
+    numReviews: product.numReviews || 0,
   });
 });
 
@@ -75,6 +87,12 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
   if (!review) {
     return next(new AppError("Review not found", 404));
   }
+
+  // check ownership
+  if (review.user.toString() !== userId.toString()) {
+    return next(new AppError("You can only update your own reviews", 403));
+  }
+
   const updatedReview = await Review.findByIdAndUpdate(id, { comment, rating }, { new: true, runValidators: true });
   res.status(200).json({
     status: "success",
@@ -95,7 +113,13 @@ exports.deleteReview = asyncHandler(async (req, res, next) => {
   if (!review) {
     return next(new AppError("Review not found", 404));
   }
+  // check ownership
+  if (review.user.toString() !== userId.toString()) {
+    return next(new AppError("You can only delete your own reviews", 403));
+  }
+
   await Review.findByIdAndDelete(id);
+
   res.status(204).json({
     status: "success",
     message: "Review deleted successfully",

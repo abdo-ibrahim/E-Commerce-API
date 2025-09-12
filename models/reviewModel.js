@@ -27,13 +27,22 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// function to update product ratings
+// function to update product ratings using Aggregation
 async function updateProductRatings(productId) {
-  const reviews = await Review.find({ product: productId });
-  const ratings = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
-  const numOfReviews = reviews.length;
-
-  await Product.findByIdAndUpdate(productId, { ratings, numOfReviews });
+  const stats = await mongoose.model("reviews").aggregate([
+    { $match: { product: productId } },
+    {
+      $group: {
+        _id: "$product",
+        averageRating: { $avg: "$rating" },
+        numReviews: { $sum: 1 },
+      },
+    },
+  ]);
+  await Product.findByIdAndUpdate(productId, {
+    averageRating: stats.length > 0 ? stats[0].averageRating : 0,
+    numReviews: stats.length > 0 ? stats[0].numReviews : 0,
+  });
 }
 
 // post save hook (after creating or updating a review)
@@ -44,6 +53,12 @@ reviewSchema.post("save", async function () {
 // post remove hook (after deleting a review)
 reviewSchema.post("remove", async function () {
   await updateProductRatings(this.product);
+});
+// post findOneAndDelete hook (works with findByIdAndDelete & findOneAndDelete)
+reviewSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await updateProductRatings(doc.product);
+  }
 });
 
 const Review = mongoose.model("reviews", reviewSchema);
