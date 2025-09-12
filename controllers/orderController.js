@@ -5,6 +5,7 @@ const Order = require("../models/orderModel");
 const { calcTotalPrice } = require("./cartController");
 const Shipping = require("../models/ShippingModel");
 const Product = require("../models/productModel");
+const APIFeatures = require("../utils/APIFeatures");
 
 /**
  * @desc   Create a new order
@@ -54,11 +55,16 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
  * @access Private/Admin
  */
 exports.getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find().populate("user", "firstName lastName userName email").populate("cartItems.product");
+  const features = new APIFeatures(Order.find().populate("user", "firstName lastName userName email").populate("cartItems.product"), req.query).filter().sort().selectFields().paginate();
+  const orders = await features.query;
+  const count = await Order.countDocuments();
   res.status(200).json({
     status: "success",
     results: orders.length,
     data: orders,
+    count,
+    totalPages: Math.ceil(count / (features.queryStr.limit || 10)),
+    currentPage: Number(features.queryStr.page || 1),
   });
 });
 

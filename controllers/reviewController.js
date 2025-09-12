@@ -3,6 +3,7 @@ const AppError = require("../utils/appErrors");
 const Review = require("../models/reviewModel");
 const Product = require("../models/productModel");
 const Order = require("../models/orderModel");
+const APIFeatures = require("../utils/APIFeatures");
 
 /**
  * @desc   Create a new review for a product
@@ -58,7 +59,10 @@ exports.getAllReviews = asyncHandler(async (req, res, next) => {
   if (!product) {
     return next(new AppError("Product not found", 404));
   }
-  const reviews = await Review.find({ product: productId }).populate("user", "firstName lastName userName");
+
+  const features = new APIFeatures(Review.find({ product: productId }).populate("user", "firstName lastName userName"), req.query).sort().paginate();
+  const reviews = await features.query;
+  const count = await Review.countDocuments({ product: productId });
   res.status(200).json({
     status: "success",
     results: reviews.length,
@@ -67,6 +71,9 @@ exports.getAllReviews = asyncHandler(async (req, res, next) => {
     },
     averageRating: product.averageRating || 0,
     numReviews: product.numReviews || 0,
+    count,
+    totalPages: Math.ceil(count / (features.queryStr.limit || 10)),
+    currentPage: Number(features.queryStr.page || 1),
   });
 });
 

@@ -3,6 +3,7 @@ const AppError = require("../utils/appErrors");
 const Category = require("../models/categoryModel");
 const path = require("path");
 const { cloudinaryUpload, cloudinaryRemove } = require("../config/cloudinary");
+const APIFeatures = require("../utils/APIFeatures");
 
 /**
  * @desc   Create a new category
@@ -50,12 +51,17 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
  * @access Public
  */
 exports.getAllCategories = asyncHandler(async (req, res, next) => {
-  const categories = await Category.find();
+  const features = new APIFeatures(Category.find(), req.query).filter().sort().selectFields().paginate();
+  const categories = await features.query;
+  const count = await Category.countDocuments();
   res.status(200).json({
     status: "success",
     data: {
       categories,
     },
+    count,
+    totalPages: Math.ceil(count / (features.queryStr.limit || 10)),
+    currentPage: Number(features.queryStr.page || 1),
   });
 });
 

@@ -3,6 +3,10 @@ const AppError = require("../utils/appErrors");
 const User = require("../models/userModel");
 const path = require("path");
 const { cloudinaryUpload, cloudinaryRemove } = require("../config/cloudinary");
+
+const APIFeatures = require("../utils/APIFeatures");
+
+const fs = require("fs");
 /**
  * @desc    Get all users
  * @route   GET /api/users
@@ -10,11 +14,18 @@ const { cloudinaryUpload, cloudinaryRemove } = require("../config/cloudinary");
  * @access  Private/Admin
  */
 exports.getAllUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find().select("-password -confirmPassword");
+  const features = new APIFeatures(User.find().select("-password -confirmPassword"), req.query).filter().sort().selectFields().paginate();
+
+  const users = await features.query;
+  const count = await User.countDocuments();
+
   res.status(200).json({
     status: "success",
     results: users.length,
     data: users,
+    count,
+    totalPages: Math.ceil(count / (features.queryStr.limit || 10)),
+    currentPage: Number(features.queryStr.page || 1),
   });
 });
 

@@ -5,6 +5,7 @@ const path = require("path");
 const { cloudinaryUpload, cloudinaryRemove, cloudinaryRemoveMultiple, cloudinaryUploadMultiple } = require("../config/cloudinary");
 require("../models/reviewModel");
 require("dotenv").config();
+const APIFeatures = require("../utils/APIFeatures");
 /**
  * @desc   Create a new product
  * @route  POST /api/v1/products
@@ -49,33 +50,29 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
  * @access Public
  */
 exports.getAllProducts = asyncHandler(async (req, res, next) => {
-  const { page = 1, limit = 10, category, minPrice, maxPrice } = req.query;
-  let filter = {};
-  if (category) {
-    filter.category = category;
-  }
-  if (minPrice) {
-    filter.price = { ...filter.price, $gte: minPrice };
-  }
-  if (maxPrice) {
-    filter.price = { ...filter.price, $lte: maxPrice };
-  }
-  const products = await Product.find(filter)
-    .skip((page - 1) * limit)
-    .limit(parseInt(limit))
-    .populate({ path: "reviews", select: "comment rating createdAt user", populate: { path: "user", select: "firstName lastName userName" } });
+  const features = new APIFeatures(
+    Product.find()
+      .populate({ path: "reviews", select: "comment rating createdAt user", populate: { path: "user", select: "firstName lastName userName" } })
+      .populate("category"),
+    req.query
+  )
+    .search()
+    .filter()
+    .sort()
+    .paginate()
+    .selectFields();
+
+  const products = await features.query;
+  const count = await Product.countDocuments();
   res.status(200).json({
     status: "success",
     results: products.length,
     data: products,
-  });
-  fs.unlink(absolutePath, (err) => {
-    if (err) {
-      console.error("Error deleting file:", err);
-    }
+    count,
+    totalPages: Math.ceil(count / (features.queryStr.limit || 10)),
+    currentPage: Number(features.queryStr.page || 1),
   });
 });
-
 /**
  * @desc   Get single product by ID
  * @route  GET /api/v1/products/:id
