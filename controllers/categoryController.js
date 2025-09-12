@@ -36,6 +36,11 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
       category: newCategory,
     },
   });
+  fs.unlink(absolutePath, (err) => {
+    if (err) {
+      console.error("Error deleting file:", err);
+    }
+  });
 });
 
 /**
@@ -119,6 +124,11 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
     data: {
       category,
     },
+  });
+  fs.unlink(absolutePath, (err) => {
+    if (err) {
+      console.error("Error deleting file:", err);
+    }
   });
 });
 

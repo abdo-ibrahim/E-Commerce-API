@@ -210,4 +210,9 @@ exports.uploadProfilePicture = asyncHandler(async (req, res, next) => {
     status: "success",
     data: user,
   });
+  fs.unlink(absolutePath, (err) => {
+    if (err) {
+      console.error("Error deleting file:", err);
+    }
+  });
 });

@@ -69,6 +69,11 @@ exports.getAllProducts = asyncHandler(async (req, res, next) => {
     results: products.length,
     data: products,
   });
+  fs.unlink(absolutePath, (err) => {
+    if (err) {
+      console.error("Error deleting file:", err);
+    }
+  });
 });
 
 /**
@@ -139,6 +144,11 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: product,
+  });
+  fs.unlink(absolutePath, (err) => {
+    if (err) {
+      console.error("Error deleting file:", err);
+    }
   });
 });
 
