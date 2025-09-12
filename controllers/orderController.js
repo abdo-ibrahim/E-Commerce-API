@@ -4,6 +4,7 @@ const Cart = require("../models/cartModel");
 const Order = require("../models/orderModel");
 const { calcTotalPrice } = require("./cartController");
 const Shipping = require("../models/ShippingModel");
+const Product = require("../models/productModel");
 
 /**
  * @desc   Create a new order
@@ -127,19 +128,48 @@ exports.updateOrderStatus = asyncHandler(async (req, res, next) => {
  */
 exports.payOrder = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const order = await Order.findById(id);
+  // Ensure product documents are populated (with stock field) for stock adjustments
+  const order = await Order.findById(id).populate("cartItems.product");
   if (!order) {
     return next(new AppError("No order found with that ID", 404));
   }
+
+  if (order.isPaid) {
+    return next(new AppError("Order is already paid", 400));
+  }
+
+  // check availability of each product in the order
+  for (const item of order.cartItems) {
+    const prodDoc = item.product;
+    if (!prodDoc || typeof prodDoc !== "object") {
+      return next(new AppError("Product data not available for stock check", 500));
+    }
+    if (item.quantity > prodDoc.stock) {
+      return next(new AppError(`Not enough stock for ${prodDoc.name}. Only ${prodDoc.stock} left.`, 400));
+    }
+  }
+  // TODO: process payment (e.g. via Stripe)
+
+  // bulk stock decrement operations (more efficient & avoids .save on plain objects)
+  const bulkOps = order.cartItems.map((item) => ({
+    updateOne: {
+      filter: { _id: item.product._id },
+      update: { $inc: { stock: -item.quantity } },
+    },
+  }));
+  if (bulkOps.length) {
+    await Product.bulkWrite(bulkOps);
+  }
+
   order.isPaid = true;
   order.paidAt = Date.now();
   await order.save();
   res.status(200).json({
     status: "success",
+    message: "Order paid and stock updated",
     data: order,
   });
 });
-
 /**
  * @desc   Delete an order
  * @route  DELETE /api/v1/orders/:id

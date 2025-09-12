@@ -18,15 +18,16 @@ exports.calcTotalPrice = async (cart) => {
  * @access Private/user
  */
 exports.getCart = asyncHandler(async (req, res, next) => {
-  let cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
+  let cart = await Cart.findOne({ user: req.user._id });
   if (!cart) {
-    cart = await Cart.create({ user: req.user._id, items: [] });
+    cart = await Cart.create({ user: req.user._id, items: [], totalPrice: 0 });
+  } else {
+    await exports.calcTotalPrice(cart);
+    await cart.populate("items.product");
   }
   res.status(200).json({
     status: "success",
-    data: {
-      cart,
-    },
+    data: { cart },
   });
 });
 
@@ -45,13 +46,25 @@ exports.addItemToCart = asyncHandler(async (req, res, next) => {
   if (!product) {
     return next(new AppError("Product not found", 404));
   }
+
+  // check stock
+  if (product.stock === 0) {
+    return next(new AppError("This product is out of stock", 400));
+  }
+  if (quantity > product.stock) {
+    return next(new AppError(`Only ${product.stock} items left in stock`, 400));
+  }
+
   let cart = await Cart.findOne({ user: req.user._id });
   if (!cart) {
     cart = await Cart.create({ user: req.user._id, items: [{ product: productId, quantity }] });
   } else {
     const itemIndex = cart.items.findIndex((item) => item.product.toString() === productId);
     if (itemIndex > -1) {
-      // product exists in cart, update quantity
+      // product exists in cart, update quantity if within stock
+      if (cart.items[itemIndex].quantity + quantity > product.stock) {
+        return next(new AppError(`Only ${product.stock} items left in stock`, 400));
+      }
       cart.items[itemIndex].quantity += quantity;
     } else {
       // product does not exist in cart, add new item
@@ -84,6 +97,15 @@ exports.updateCartItem = asyncHandler(async (req, res, next) => {
   if (!product) {
     return next(new AppError("Product not found", 404));
   }
+
+  // check stock
+  if (product.stock === 0) {
+    return next(new AppError("This product is out of stock", 400));
+  }
+  if (quantity > product.stock) {
+    return next(new AppError(`Only ${product.stock} items left in stock`, 400));
+  }
+
   const cart = await Cart.findOne({ user: req.user._id });
   if (!cart) {
     return next(new AppError("Cart not found", 404));
